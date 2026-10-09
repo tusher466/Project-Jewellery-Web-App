@@ -4,7 +4,7 @@ import { createOrder } from '../services/storage';
 import { formatBDT } from '../services/marketRates';
 import { Language, translations } from '../i18n/translations';
 import confetti from 'canvas-confetti';
-import { X, CheckCircle2, Lock, Sparkles, CreditCard } from 'lucide-react';
+import { X, CheckCircle2, Lock, Sparkles, Banknote, ShieldCheck } from 'lucide-react';
 
 interface CheckoutModalProps {
   lang: Language;
@@ -172,6 +172,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <span className="text-slate-400">{isBn ? 'ডেলিভারি ঠিকানা:' : 'Delivery Address:'}</span>
                 <span className="font-semibold text-white">
                   {confirmedOrder.customerName}, {confirmedOrder.shippingAddress}, {confirmedOrder.city} ({confirmedOrder.customerPhone})
+                </span>
+              </div>
+              <div className="flex justify-between border-b border-slate-700/60 pb-2">
+                <span className="text-slate-400">{isBn ? 'মূল্য পরিশোধ পদ্ধতি:' : 'Payment Method:'}</span>
+                <span className="font-semibold text-emerald-400 flex items-center gap-1">
+                  <Banknote className="h-3.5 w-3.5 inline" />
+                  {isBn ? 'ক্যাশ অন ডেলিভারি (COD)' : 'Cash on Delivery (COD)'}
                 </span>
               </div>
               <div className="flex justify-between pt-1 font-bold text-sm text-[#f3e5ab]">
@@ -392,29 +399,43 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             </div>
 
-            {/* Payment Method Option */}
+            {/* Payment Method Option - Only COD Cash on Delivery */}
             <div className="pt-2 border-t border-slate-800">
-              <span className="text-xs font-bold text-slate-300 block mb-2">{t.paymentMethodLabel}</span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {[
-                  { id: 'cash-on-delivery', title: t.paymentCod, desc: isBn ? 'ডেলিভারির সময় যাচাই করে মূল্য দিন' : 'Pay when delivered to door' },
-                  { id: 'bkash-nagad', title: t.paymentBkash, desc: isBn ? 'বিকাশ বা নগদ মার্চেন্ট পেমেন্ট' : 'Fast mobile banking transfer' },
-                  { id: 'bank-transfer', title: t.paymentBank, desc: isBn ? 'সরাসরি ব্যাংক বা শোরুমে এসে' : 'Official bank payment or store pickup' },
-                ].map((pm) => (
-                  <button
-                    key={pm.id}
-                    type="button"
-                    onClick={() => setPaymentMethod(pm.id as CustomerOrder['paymentMethod'])}
-                    className={`p-2.5 rounded-xl border text-left text-xs transition-colors cursor-pointer ${
-                      paymentMethod === pm.id
-                        ? 'border-[#d4af37] bg-[#d4af37]/15 text-white'
-                        : 'border-slate-800 bg-[#161824] text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    <div className="font-bold text-white">{pm.title}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">{pm.desc}</div>
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-300 block">{t.paymentMethodLabel}</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[#f3e5ab]">
+                  {isBn ? 'একমাত্র অনুমোদিত মাধ্যম' : 'Only Available Option'}
+                </span>
+              </div>
+              
+              <div className="p-3.5 rounded-2xl border-2 border-[#d4af37]/70 bg-gradient-to-r from-[#d4af37]/15 via-[#181a26] to-[#141622] flex items-start gap-3 shadow-lg shadow-[#d4af37]/5">
+                <div className="p-2.5 rounded-xl bg-[#d4af37]/20 text-[#f3e5ab] mt-0.5 shrink-0 border border-[#d4af37]/30">
+                  <Banknote className="h-5 w-5 text-[#d4af37]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="font-bold text-sm text-white flex items-center gap-1.5">
+                      {isBn ? 'ক্যাশ অন ডেলিভারি (COD)' : 'Cash on Delivery (COD)'}
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400 inline shrink-0" />
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-md">
+                      {isBn ? '০% অগ্রিম পেমেন্ট' : '0% Advance Required'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                    {isBn
+                      ? 'ডেলিভারির সময় গহনা ও আসল হলমার্ক মেমো স্বচক্ষে দেখে যাচাই করে ডেলিভারি প্রতিনিধির হাতে নগদ টাকা পরিশোধ করুন।'
+                      : 'Inspect your authentic jewelry piece and verify the hallmark memo at your doorstep before paying cash.'}
+                  </p>
+                  <div className="mt-2.5 flex items-center gap-3 text-[11px] text-slate-400 flex-wrap">
+                    <span className="flex items-center gap-1 text-emerald-300">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      {isBn ? 'নিরাপদ সিলগালা পার্সেল' : 'Tamper-evident sealed parcel'}
+                    </span>
+                    <span>•</span>
+                    <span>{isBn ? 'সম্পূর্ণ ঝুঁকিমুক্ত অর্ডার' : '100% Risk-Free Delivery'}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -422,7 +443,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs text-slate-400">
                 <Lock className="h-3.5 w-3.5 text-emerald-400" />
-                <span>{isBn ? 'নিরাপদ অর্ডার সিস্টেম' : 'Direct encrypted order dispatch'}</span>
+                <span>{isBn ? 'নিরাপদ ক্যাশ অন ডেলিভারি' : 'Encrypted Cash on Delivery dispatch'}</span>
               </div>
               <button
                 type="submit"
@@ -433,8 +454,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <span>{isBn ? 'অর্ডার নিবন্ধিত হচ্ছে...' : 'Registering Order with Atelier...'}</span>
                 ) : (
                   <>
-                    <CreditCard className="h-4 w-4" />
-                    <span>{t.confirmOrderBtn} ({formatBDT(product.price, isBn)})</span>
+                    <Banknote className="h-4 w-4" />
+                    <span>{isBn ? 'ক্যাশ অন ডেলিভারিতে অর্ডার নিশ্চিত করুন' : 'Confirm Cash on Delivery'} ({formatBDT(product.price, isBn)})</span>
                   </>
                 )}
               </button>
