@@ -1,0 +1,6 @@
+{
+  "name": "AURA Fine Jewelry & Maison Atelier",
+  "description": "High-end jewelry web boutique with photorealistic 3D rendering, customer messaging & orders, and real-time owner atelier dashboard with instant alerts.",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

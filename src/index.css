@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --gold-primary: #d4af37;
+    --gold-light: #f3e5ab;
+    --gold-dark: #997c1d;
+    --surface-dark: #101118;
+    --surface-card: #161722;
+    --border-luxury: rgba(212, 175, 55, 0.22);
+  }
+
+  body {
+    font-family: 'Capriola', system-ui, -apple-system, sans-serif;
+    background-color: #0b0c11;
+    color: #e5e7eb;
+    overflow-x: hidden;
+  }
+
+  /* English font */
+  .font-en, body:not(.lang-bn) {
+    font-family: 'Capriola', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Bangla font: Hind Siliguri */
+  .font-bn, body.lang-bn, .lang-bn * {
+    font-family: 'Hind Siliguri', system-ui, sans-serif;
+  }
+
+  .font-brand {
+    font-family: 'Capriola', sans-serif;
+  }
+
+  .font-mono-numbers {
+    font-family: 'Space Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Luxury gold glow & badge utilities */
+.gold-glow {
+  box-shadow: 0 0 20px -3px rgba(212, 175, 55, 0.25);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #f8ecc2 0%, #d4af37 50%, #aa8214 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom discreet scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0e14;
+}
+::-webkit-scrollbar-thumb {
+  background: #252836;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+}
