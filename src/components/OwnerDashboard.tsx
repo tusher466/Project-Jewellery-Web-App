@@ -6,6 +6,7 @@ import {
   updateJewelryItemStock,
   updateJewelryItemStockStatus,
   updateJewelryItem,
+  addJewelryItem,
   deleteJewelryItem,
   updateOrderStatus,
   deleteOrder,
@@ -233,13 +234,13 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
   };
 
   const handleSavePrice = (itemId: string) => {
-    const updated = updateJewelryItemPrice(itemId, editingPriceValue);
+    const updated = updateJewelryItemPrice(itemId, editingPriceValue, items);
     onItemsChange(updated);
     setEditingPriceId(null);
   };
 
   const handleStockChange = (itemId: string, newStock: number) => {
-    const updated = updateJewelryItemStock(itemId, newStock);
+    const updated = updateJewelryItemStock(itemId, newStock, items);
     onItemsChange(updated);
   };
 
@@ -247,7 +248,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
     itemId: string,
     status: 'in-stock' | 'low-stock' | 'made-to-order' | 'sold-out'
   ) => {
-    const updated = updateJewelryItemStockStatus(itemId, status);
+    const updated = updateJewelryItemStockStatus(itemId, status, items);
     onItemsChange(updated);
   };
 
@@ -255,7 +256,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
   const handleConfirmDeleteItem = () => {
     if (!itemToDelete) return;
     const target = itemToDelete;
-    const updated = deleteJewelryItem(target.id);
+    const updated = deleteJewelryItem(target.id, items);
     onItemsChange(updated);
     setItemToDelete(null);
     triggerPushNotification({
@@ -335,9 +336,13 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
   };
 
   const filteredItems = items.filter((it) => {
+    const searchLower = (inventorySearch || '').trim().toLowerCase();
     const matchesSearch =
-      it.name.toLowerCase().includes(inventorySearch.toLowerCase()) ||
-      it.sku.toLowerCase().includes(inventorySearch.toLowerCase());
+      !searchLower ||
+      (it.name || '').toLowerCase().includes(searchLower) ||
+      (it.nameBn && it.nameBn.includes(inventorySearch.trim())) ||
+      (it.sku || '').toLowerCase().includes(searchLower) ||
+      (it.collection || '').toLowerCase().includes(searchLower);
     const matchesCat = inventoryCategoryFilter === 'all' || it.category === inventoryCategoryFilter;
     return matchesSearch && matchesCat;
   });
@@ -1449,8 +1454,19 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onItemAdded={(newItem) => {
-          const updated = [newItem, ...items];
+          const updated = addJewelryItem(newItem, items);
           onItemsChange(updated);
+          setIsAddModalOpen(false);
+          if (inventoryCategoryFilter !== 'all' && inventoryCategoryFilter !== newItem.category) {
+            setInventoryCategoryFilter('all');
+          }
+          triggerPushNotification({
+            type: 'system',
+            title: isBn ? '✨ নতুন গহনা সফলভাবে যুক্ত হয়েছে' : '✨ New Jewelry Item Added',
+            message: isBn
+              ? `"${newItem.nameBn || newItem.name}" ইনভেন্টরি ও স্টোরফ্রন্টে লাইভ প্রকাশ করা হয়েছে।`
+              : `"${newItem.name}" is now live in your store collection.`,
+          });
         }}
       />
 
@@ -1461,12 +1477,22 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
         item={editingItemForModal}
         onClose={() => setEditingItemForModal(null)}
         onItemUpdated={(updatedItem) => {
-          const updated = updateJewelryItem(updatedItem);
+          const updated = updateJewelryItem(updatedItem, items);
           onItemsChange(updated);
           setEditingItemForModal(null);
+          if (inventoryCategoryFilter !== 'all' && inventoryCategoryFilter !== updatedItem.category) {
+            setInventoryCategoryFilter('all');
+          }
+          triggerPushNotification({
+            type: 'system',
+            title: isBn ? '✅ গহনার তথ্য সফলভাবে সংরক্ষিত' : '✅ Item Updated Successfully',
+            message: isBn
+              ? `"${updatedItem.nameBn || updatedItem.name}" এর নতুন তথ্য ও মূল্য সংরক্ষিত হয়েছে।`
+              : `"${updatedItem.name}" specifications and price updated live.`,
+          });
         }}
         onItemDeleted={(id) => {
-          const updated = deleteJewelryItem(id);
+          const updated = deleteJewelryItem(id, items);
           onItemsChange(updated);
           setEditingItemForModal(null);
         }}

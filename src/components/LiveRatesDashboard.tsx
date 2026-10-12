@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LiveMetalRate } from '../types';
 import { getLiveRates, refreshMarketRates, formatBDT, toBnDigits } from '../services/marketRates';
 import { Language } from '../i18n/translations';
-import { EditMarketRatesModal } from './EditMarketRatesModal';
-import { TrendingUp, RefreshCw, Calculator, Sparkles, ShieldCheck, Clock, ArrowRight, Edit3 } from 'lucide-react';
+import { TrendingUp, RefreshCw, Calculator, Sparkles, ShieldCheck, Clock, ArrowRight } from 'lucide-react';
 
 interface LiveRatesDashboardProps {
   lang: Language;
@@ -14,7 +13,6 @@ export const LiveRatesDashboard: React.FC<LiveRatesDashboardProps> = ({ lang }) 
   const [rates, setRates] = useState<LiveMetalRate[]>(getLiveRates());
   const [viewUnit, setViewUnit] = useState<'vhori' | 'gram'>('vhori');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Synchronize live rates across entire app whenever rates are updated
   useEffect(() => {
@@ -112,15 +110,6 @@ export const LiveRatesDashboard: React.FC<LiveRatesDashboardProps> = ({ lang }) 
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin text-[#d4af37]' : ''}`} />
           </button>
 
-          {/* Update Rates button */}
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-[#d4af37]/15 hover:bg-[#d4af37]/25 border border-[#d4af37]/50 text-[#f3e5ab] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shadow-[#d4af37]/10"
-            title={isBn ? 'স্বর্ণ ও রূপার বাজার দর পরিবর্তন করুন' : 'Update Live Market Rates'}
-          >
-            <Edit3 className="h-3.5 w-3.5 text-[#d4af37]" />
-            <span>{isBn ? 'দর পরিবর্তন' : 'Update Rates'}</span>
-          </button>
         </div>
       </div>
 
@@ -278,13 +267,6 @@ export const LiveRatesDashboard: React.FC<LiveRatesDashboardProps> = ({ lang }) 
         </div>
       </div>
 
-      {/* Modal to edit and customize live market rates with real Bangladesh prices */}
-      <EditMarketRatesModal
-        lang={lang}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onRatesUpdated={(updatedRates) => setRates(updatedRates)}
-      />
     </section>
   );
 };

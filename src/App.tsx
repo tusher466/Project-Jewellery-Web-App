@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { CustomerInquiry, CustomerOrder, JewelryCategory, JewelryItem } from './types';
 import {
   getJewelryItems,
+  saveJewelryItems,
   getOrders,
   getInquiries,
   isOwnerAuthenticated,
@@ -93,6 +94,17 @@ export default function App() {
     setOrders(getOrders());
     setInquiries(getInquiries());
     setIsOwnerLoggedIn(isOwnerAuthenticated());
+
+    const handleItemsSync = (event: Event) => {
+      const customEvt = event as CustomEvent<JewelryItem[]>;
+      if (customEvt.detail) {
+        setItems(customEvt.detail);
+      } else {
+        setItems(getJewelryItems());
+      }
+    };
+    window.addEventListener('rk_jewelry_items_updated', handleItemsSync);
+    return () => window.removeEventListener('rk_jewelry_items_updated', handleItemsSync);
   }, []);
 
   const handleToggleLanguage = () => {
@@ -104,11 +116,14 @@ export default function App() {
     .filter((item) => {
       const matchesCat = selectedCategory === 'all' || item.category === selectedCategory;
       const matchesMetal = selectedMetal === 'all' || item.metal === selectedMetal;
+      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.nameBn && item.nameBn.includes(searchQuery)) ||
-        item.collection.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.nameBn && item.nameBn.includes(searchQuery.trim())) ||
+        (item.collection || '').toLowerCase().includes(q) ||
+        (item.description || '').toLowerCase().includes(q) ||
+        (item.sku || '').toLowerCase().includes(q);
       return matchesCat && matchesMetal && matchesSearch;
     })
     .sort((a, b) => {
@@ -146,7 +161,10 @@ export default function App() {
         items={items}
         orders={orders}
         inquiries={inquiries}
-        onItemsChange={(newItems) => setItems(newItems)}
+        onItemsChange={(newItems) => {
+          setItems(newItems);
+          saveJewelryItems(newItems);
+        }}
         onOrdersChange={(newOrders) => setOrders(newOrders)}
         onInquiriesChange={(newInqs) => setInquiries(newInqs)}
         onExitToStore={() => setCurrentView('store')}

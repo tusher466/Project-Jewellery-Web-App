@@ -102,10 +102,10 @@ export const EditJewelryModal: React.FC<EditJewelryModalProps> = ({
 
     const updated: JewelryItem = {
       ...item,
-      name,
+      name: name.trim() || item.name,
       nameBn: nameBn.trim() || undefined,
       category,
-      collection,
+      collection: collection.trim() || item.collection || 'RK Exclusive Atelier',
       metal,
       gemstone,
       weightGrams: Number(weightGrams) || 11.66,
@@ -113,10 +113,10 @@ export const EditJewelryModal: React.FC<EditJewelryModalProps> = ({
       price: Number(price) || 10000,
       stock: Number(stock) || 0,
       stockStatus: stockStatus || 'in-stock',
-      description,
+      description: description.trim() || item.description || '',
       descriptionBn: descriptionBn.trim() || undefined,
-      craftsmanshipNotes,
-      images,
+      craftsmanshipNotes: craftsmanshipNotes.trim() || item.craftsmanshipNotes || 'BAJUS 916 Hallmark certified.',
+      images: images.length > 0 ? images : item.images,
     };
 
     onItemUpdated(updated);

@@ -162,27 +162,29 @@ const INITIAL_INQUIRIES: CustomerInquiry[] = [];
 export function getJewelryItems(): JewelryItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify([]));
-      return [];
+    if (raw === null) {
+      localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(SAMPLE_SHOWCASE_ITEMS));
+      return SAMPLE_SHOWCASE_ITEMS;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return [];
+    return SAMPLE_SHOWCASE_ITEMS;
   }
 }
 
 export function saveJewelryItems(items: JewelryItem[]): void {
   try {
     localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(items));
+    window.dispatchEvent(new CustomEvent('rk_jewelry_items_updated', { detail: items }));
   } catch (err) {
     console.error('Failed to save items', err);
   }
 }
 
-export function updateJewelryItemPrice(id: string, newPrice: number): JewelryItem[] {
-  const items = getJewelryItems();
-  const updated = items.map((item) => {
+export function updateJewelryItemPrice(id: string, newPrice: number, currentItems?: JewelryItem[]): JewelryItem[] {
+  const baseItems = currentItems && currentItems.length > 0 ? currentItems : getJewelryItems();
+  const updated = baseItems.map((item) => {
     if (item.id === id) {
       return {
         ...item,
@@ -196,26 +198,35 @@ export function updateJewelryItemPrice(id: string, newPrice: number): JewelryIte
   return updated;
 }
 
-export function updateJewelryItemStock(id: string, stock: number): JewelryItem[] {
-  const items = getJewelryItems();
-  const updated = items.map((item) => (item.id === id ? { ...item, stock: Math.max(0, stock) } : item));
+export function updateJewelryItemStock(id: string, stock: number, currentItems?: JewelryItem[]): JewelryItem[] {
+  const baseItems = currentItems && currentItems.length > 0 ? currentItems : getJewelryItems();
+  const updated = baseItems.map((item) => (item.id === id ? { ...item, stock: Math.max(0, stock) } : item));
   saveJewelryItems(updated);
   return updated;
 }
 
-export function updateJewelryItem(updatedItem: JewelryItem): JewelryItem[] {
-  const items = getJewelryItems();
-  const updated = items.map((item) => (item.id === updatedItem.id ? updatedItem : item));
+export function updateJewelryItem(updatedItem: JewelryItem, currentItems?: JewelryItem[]): JewelryItem[] {
+  const baseItems = currentItems && currentItems.length > 0 ? currentItems : getJewelryItems();
+  const index = baseItems.findIndex((item) => item.id === updatedItem.id);
+  let updated: JewelryItem[];
+  if (index !== -1) {
+    updated = [...baseItems];
+    updated[index] = updatedItem;
+  } else {
+    // If item was not yet in baseItems, prepend so it never disappears!
+    updated = [updatedItem, ...baseItems];
+  }
   saveJewelryItems(updated);
   return updated;
 }
 
 export function updateJewelryItemStockStatus(
   id: string,
-  stockStatus: 'in-stock' | 'low-stock' | 'made-to-order' | 'sold-out'
+  stockStatus: 'in-stock' | 'low-stock' | 'made-to-order' | 'sold-out',
+  currentItems?: JewelryItem[]
 ): JewelryItem[] {
-  const items = getJewelryItems();
-  const updated = items.map((item) => (item.id === id ? { ...item, stockStatus } : item));
+  const baseItems = currentItems && currentItems.length > 0 ? currentItems : getJewelryItems();
+  const updated = baseItems.map((item) => (item.id === id ? { ...item, stockStatus } : item));
   saveJewelryItems(updated);
   return updated;
 }
@@ -234,16 +245,17 @@ export function saveShopWhatsAppNumber(num: string): void {
   } catch {}
 }
 
-export function addJewelryItem(newItem: JewelryItem): JewelryItem[] {
-  const items = getJewelryItems();
-  const updated = [newItem, ...items];
+export function addJewelryItem(newItem: JewelryItem, currentItems?: JewelryItem[]): JewelryItem[] {
+  const baseItems = currentItems && currentItems.length > 0 ? currentItems : getJewelryItems();
+  const filtered = baseItems.filter((item) => item.id !== newItem.id);
+  const updated = [newItem, ...filtered];
   saveJewelryItems(updated);
   return updated;
 }
 
-export function deleteJewelryItem(id: string): JewelryItem[] {
-  const items = getJewelryItems();
-  const updated = items.filter((item) => item.id !== id);
+export function deleteJewelryItem(id: string, currentItems?: JewelryItem[]): JewelryItem[] {
+  const baseItems = currentItems && currentItems.length > 0 ? currentItems : getJewelryItems();
+  const updated = baseItems.filter((item) => item.id !== id);
   saveJewelryItems(updated);
   return updated;
 }
