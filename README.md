@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,100:2563EB&height=200&section=header&text=Hi,%20I'm%20Project%20RK%20Jewellers&fontSize=45&fontColor=FFFFFF&animation=fadeIn&fontAlignY=35" alt="Learning Resources Banner"/>
+</p>
+
+# Live Website link: https://rk-jewelers-phi.vercel.app/
+
 RK Jewellery Web App
 A responsive jewellery storefront and owner dashboard for a Bangladesh-based shop. Customers browse products, submit inquiries, place orders, and track order status. Owners manage inventory, orders, messages, market rates, and sales analytics. The interface supports English and Bangla, with prices in Bangladeshi Taka (BDT).
 Main Features
