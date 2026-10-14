@@ -38,7 +38,8 @@ Full Project Workflow
 6. Manage fulfilment: Review orders and update their status through pending → confirmed → in-crafting → shipped → delivered. Manage stock separately; placing an order does not automatically reduce inventory.
 7. Handle inquiries: New messages are saved with status new; owner replies are appended to the conversation and change the status to replied.
 8. Maintain and track: Owners update listings, market rates, and the WhatsApp number, review analytics/alerts, or reload sample products. Customers return to the storefront and search their order number to see its saved status.
-Project Structure
+
+# Project Structure
 Path	Responsibility
 src/App.tsx	Storefront, filters, tracking, and owner-view switching
 src/components/	Product, checkout, inquiry, dashboard, chart, and viewer interfaces
